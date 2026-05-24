@@ -57,17 +57,17 @@ int main() {
         else if (volba == 2) {
             hracmaxHP = 4; hracutok = 4; hracmaxmana = 3;
             cout << "Class Lovec -> Zivot 4/4, Utok 4, Mana 3/3... \n";
-            cout << "Schopnosti:  Zamerena strela (6 dmg, -2 mana), Salva (1 vsem, -2 mana), Prvni pomoc (+2 HP, -2 mana)\n";
+            cout << "Schopnosti:  Zamerena strela (6 dmg, -2 mana), Salva (1 dmg, -2 mana), Prvni pomoc (+2 HP, -2 mana)\n";
         }
         else if (volba == 3) {
             hracmaxHP = 3; hracutok = 3; hracmaxmana = 7;
             cout << "Class Warlock. Zivot 4/4, Utok 3, Mana 5/5.\n";
-            cout << "Schopnosti: Shadow bolt (4 dmg, -2 mana), Drain Life (3 dmg +3 HP, -3 mana), Curse (neco...)\n";
+            cout << "Schopnosti: Fireball (5 dmg, -3 mana), Storm (2 dmg , -2 mana), Leceni (+3 HP, -3 mana)\n";
         }
         else if (volba == 4) {
             hracmaxHP = 4; hracutok = 3; hracmaxmana = 2;
             cout << "Class Warlock. Zivot 4/4, Utok 3, Mana 5/5.\n";
-            cout << "Schopnosti: Shadow bolt (4 dmg, -2 mana), Drain Life (3 dmg +3 HP, -3 mana), Curse (neco...)\n";
+            cout << "Schopnosti: Shadow bolt (4 dmg, -2 mana), Drain Life (3 dmg +3 HP, -3 mana)\n";
         }
         else {
             cout << "Neplatna volba :( \n";
@@ -114,8 +114,65 @@ int main() {
             cout << "\n Souboj s final bossem ste vyhrali dostavate zlateho bludistaka\n";
             break;
         }
+        // Kontrola po soubojich
+        while (hracXP >= levelhrace * 5) {
+            hracXP -= levelhrace * 5;
+            levelhrace++;
+            hracmaxHP++;
+            hracutok++;
+            hracmaxmana++;
+            hracHP = hracmaxHP;
+            hracmana = hracmaxmana;
+            cout << "Novy level " << levelhrace;
+            cout << "Max zivoty vracen! utok: " << hracutok << "\n";
+        }
     }
-
+    return 0;
+}
+void navstivVesnici() {
+    cout << "\n ***** Vesnice ***** \n";
+    while (true) {
+        cout << "Zlato: " << zlato << "\n";
+        cout << "1) Lecivka (doplni HP na max, 5 zlata)\n";
+        cout << "2) Zvysit max HP +1 (10 zlata)\n";
+        cout << "3) Zvysit max manu +1 (10 zlata)\n";
+        cout << "4) Zvysit utok +1 (15 zlata)\n";
+        cout << "0) Pokracovat\n";
+        cout << "Tvoje volba: ";
+        int volba; cin >> volba;
+        if (volba == 0) break;
+        if (volba == 1) {
+            if(zlato >= 5) {
+                zlato -= 5;
+                hracHP = hracmaxHP;
+                cout << "Zivot doplneny na: " << hracHP << "/" << hracmaxHP << ".\n";
+            } else cout << "Nemas dost zlata.\n";
+        }
+        else if (volba == 2) {
+            if(zlato>= 10) {
+                zlato -= 10;
+                hracmaxHP++;
+                cout << "Max HP zvednuto na: " << hracmaxHP << ".\n";
+            } else cout << "Nemas dost zlata.\n";
+        }
+        else if(volba == 3) {
+            if(zlato >= 10) {
+                zlato -= 10;
+                hracmaxmana++;
+                cout << "Max mana zvednuta na: " << hracmaxmana << ".\n";
+            } else cout << "Nemas dost zlata.\n";
+    }
+        else if (volba == 4) {
+            if(zlato >= 15) {
+                zlato -= 15;
+                hracutok++;
+                cout << "Utok zvysen na: " << hracutok << ".\n";
+            } else cout << "Nemas dost zlata.\n";
+            }
+        else {
+            cout << "Neplatna volba \n";
+        }
+    }
 }
 // Souboj s monstry a hodnoty monster s radou od ai
 void souboj(int monsterCount, int monsterHPMax, int monsterAttack, bool jeBoss) {
@@ -124,6 +181,50 @@ void souboj(int monsterCount, int monsterHPMax, int monsterAttack, bool jeBoss) 
     while (true) {
         if (playerTurn) {
             // tady si hrac bude vybirat co chce udelat
+            cout << "\nTahni - HP: " << hracHP << "/" << hracmana << "/" << hracmaxHP << ", Mana: " << hracmana << "/" << hracmaxmana << "\n";
+            cout << "1) Zakladni utok (" << hracutok << "dmg)\n";
+            cout << "2) Schopnost 1\n";
+            cout << "3) Schopnost 2\n";
+            cout << "4) Vzdavam se\n";
+            cout << "Volba: ";
+            int volba; cin >> volba;
+            if (volba == 4) {
+                cout << "Kapituloval si\n";
+                exit(0);
+            }
+            int dmg = 0;
+            if (volba == 1) {
+                dmg = hracutok;
+                // vyber jednoho monstra
+                int cil = 0;
+                if (monsterCount > 1) {
+                    cout << "Cil je jake mostrum? (1-" << monsterCount << "): \n";
+                    cil >> cil;
+                    cil--;
+                    if (cil < 0 || cil >= monsterCount || monsterHP[cil] <= 0) {
+                        cout << "Neplatny cil... \n";
+                        continue;
+                    }
+                }
+                else cil = 0;
+                monsterHP[cil] -= dmg;
+                cout << "Uder za " << dmg << "monstru " << (cil + 1) << "\n";
+            }
+            else if (volba == 2) {} // omlouvam se pane uciteli ale nevim jak mam ty schopnosti udelat pro kazdou tridu
+            else if (volba == 3) {}
+            else {
+                cout << "Neplatna volba :( \n";
+                continue;
+            }
+        }
+        else {
+            // hra monster
+            for (int i = 0; i < monsterCount; i++) {
+                if (monsterHP[i] > 0) {
+                    cout << "Monster" << i + 1 << " utok za: " << monsterAttack << "dmg \n";
+                    hracHP -= monsterAttack;
+                }
+            }
         }
     }
 }
