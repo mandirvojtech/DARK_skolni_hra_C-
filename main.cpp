@@ -7,6 +7,7 @@ int hracmaxHP, hracHP, hracutok, hracmaxmana, hracmana;
 int zlato = 0, levelhrace = 1, hracXP = 0;
 
 
+
 int main() {
     cout << R"(
 
