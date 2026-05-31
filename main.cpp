@@ -1,12 +1,16 @@
 #include <iostream>
 #include <ctime>
 #include <vector> // pridani vektoru
+#include <cstdlib> // nahodne generovani cisel
+#include <ctime> // pridani casu pro nahodnost generovani
 using namespace std;
 // promene hrace
 int hracmaxHP, hracHP, hracutok, hracmaxmana, hracmana;
 int zlato = 0, levelhrace = 1, hracXP = 0;
 
-
+// deklarace fuknci
+void navstivVesnici();
+void souboj(int pocet, int hp, int atk, bool jeBoss);
 
 int main() {
     cout << R"(
@@ -227,5 +231,23 @@ void souboj(int monsterCount, int monsterHPMax, int monsterAttack, bool jeBoss) 
                 }
             }
         }
+        bool mrtev = true;
+        for (int i = 0; i < monsterCount; i++) {
+            if (monsterHP[i] > 0) { mrtev = false; break; }
+        }
+        if (mrtev) {
+            cout << "Vytezstvi gratuluju :)\n";
+            if (jeBoss) {
+                int drop = 10 + rand() % 11;
+                zlato += drop;
+                cout << "Po bossovi ti zbylo " << zlato << " zlata\n";
+            }
+        }
+        break;
     }
+    if(hracHP <= 0) {
+        cout << "Prohral jsi :( \n";
+        exit(0);
+    }
+    playerTurn = !playerTurn;
 }
