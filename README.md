@@ -367,7 +367,7 @@ g++ main.cpp -o dungeon
 
 # 👨‍💻 Autor
 
-Vytvořil **[Tvoje Jméno]**
+Vytvořil **[Vojtěch Mandir]**
 
 Projekt vznikl jako studijní RPG hra v jazyce **C++** zaměřená na:
 
