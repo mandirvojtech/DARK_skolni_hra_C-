@@ -1,21 +1,382 @@
-# untitled1
-# Terminálová RPG Hra v C++
+# 🏰 DARK - Legends of the Dungeon
 
-**Popis:** Jedná se o textovou RPG hru napsanou v C++ (pouze s příkazy `goto`, bez OOP, spustitelná v příkazovém řádku **CMD**). Hráč si na začátku vybere třídu (např. Paladin, Lovec, Mág nebo Warlock), potvrdí volbu a následně prochází herní mapou složenou z vesnic a bojů s monstry a bossem. Hra obsahuje minimálně 16 různých monster, 2 mini-bossy, 1 hlavního bosse a 2 vesnice. Ve hře se přinejmenším jednou potkáš s bojem proti 1, 2 i 3 monsterům najednou.
+> Textové RPG vytvořené v jazyce C++, ve kterém se hráč vydává do temných dungeonů, bojuje s monstry, získává zkušenosti, nakupuje v obchodě a nakonec se utká s mocným bossem **Reckonusem**.
 
-**Hlavní vlastnosti hry:**
-- **Výběr postavy:** Na začátku si vybereš jednu z předdefinovaných tříd. Statistika (životy, útok, mana) je pro každou třídu odlišná. Před potvrzením volby vidíš přehled stavu třídy i její schopnosti.
-- **Souboje:** Boj je tahový. Proti běžným monsterům má první tah hráč, proti mini-bossům a bossovi mají tah první nepřátelé. Hra podporuje souboje s jedním, dvěma i třemi monstry současně. Cílem je zničit všechny nepřátele; pokud hráč ztratí všechny životy, hra končí prohrou. Po poražení hlavního bosse hráč vyhrává hru.
-- **Zkušenosti a úrovně:** Za každé zabité monstrum/mini-bossa získáš zkušenosti a případně i zlato (monstra mají 50% šanci na nalezení zlata, mini-boss vždy). Po dosažení určitého počtu zkušeností postoupíš na další úroveň, která zvýší tvoje životy, manové body a útok. (Přesný systém úrovní je definován v kódu.)
-- **Vesnice:** Vesnice slouží jako bezpečné útočiště. Tam si můžeš doplnit životy a manu nebo za utržené zlato vylepšit maximum životů, maximum many či útok. (Ceny jednotlivých akcí jsou pevně nastavené v kódu.)
-- **Úsporné hodnoty:** Program kontroluje, aby životy nebo mana neklesly pod nulu a aby hráč měl dostatek zlata pro nákup. Nelze například dát hráči více životů, než jaké má stanovené maximum.
-- **Textové rozhraní:** Hra komunikuje přes textový výstup. Hráč vybírá akce pomocí klávesnice zadáváním číselných voleb a potvrzuje stiskem ENTER.
+---
 
-## Jak hru spustit
+## 📖 O projektu
 
-1. Ujisti se, že máš nainstalovaný **C++ kompilátor** (např. GCC nebo MSVC). Kód lze kompilovat jako C++17.
-2. Otevři příkazový řádek (CMD ve Windows).
-3. Přejdi do složky s hlavním zdrojovým souborem hry (např. `main.cpp`).
-4. Spusť kompilaci, například:
-   ```bash
-   g++ main.cpp -o hra.exe
+**DARK - Legends of the Dungeon** je konzolová RPG hra napsaná v C++, která využívá objektově jednodušší procedurální přístup.
+
+Hráč si na začátku vybere jednu ze čtyř tříd a následně postupuje předem vytvořenou mapou plnou nepřátel, mini-bossů a vesnic.
+
+Cílem hry je:
+
+- ⚔️ Porazit všechny nepřátele
+- 📈 Získávat zkušenosti a levelovat
+- 💰 Sbírat zlato
+- 🏘️ Vylepšovat postavu ve vesnicích
+- 👑 Porazit finálního bosse Reckonuse
+
+---
+
+# 🎮 Herní třídy
+
+## 🛡️ Paladin
+
+Silný tank s vysokým zdravím.
+
+### Schopnosti
+| Schopnost | Efekt |
+|------------|---------|
+| Základní útok | Standardní poškození |
+| Úder světlem | Poškození všech nepřátel |
+| Uzdravení | Obnoví HP |
+
+---
+
+## 🏹 Lovec
+
+Specialista na přesné útoky.
+
+### Schopnosti
+| Schopnost | Efekt |
+|------------|---------|
+| Základní útok | Standardní poškození |
+| Zaměřená střela | Dvojnásobné poškození |
+| První pomoc | Léčení |
+
+---
+
+## 🔥 Mag
+
+Postava zaměřená na magické útoky.
+
+### Schopnosti
+| Schopnost | Efekt |
+|------------|---------|
+| Základní útok | Standardní poškození |
+| Fireball | Silný magický útok |
+| Léčení | Obnova zdraví |
+
+---
+
+## 🌑 Warlock
+
+Temný mág využívající životní sílu nepřátel.
+
+### Schopnosti
+| Schopnost | Efekt |
+|------------|---------|
+| Základní útok | Standardní poškození |
+| Shadow Bolt | Temná magie |
+| Drain Life | Poškození + léčení |
+
+---
+
+# 🗺️ Herní mapa
+
+Mapa je definována pomocí:
+
+```cpp
+vector<string> mapa
+```
+
+Každý symbol představuje událost:
+
+| Symbol | Význam |
+|----------|----------|
+| V | Vesnice |
+| M | 1 monstrum |
+| 2M | 2 monstra |
+| 3M | 3 monstra |
+| MB | Mini-boss |
+| HB | Hlavní boss |
+
+Příklad:
+
+```cpp
+{
+    "V",
+    "M", "M", "2M", "MB",
+    "V",
+    "M", "2M", "2M", "MB",
+    "V",
+    "2M", "2M", "3M",
+    "V",
+    "HB"
+};
+```
+
+---
+
+# ⚔️ Soubojový systém
+
+Hlavní souboje probíhají ve funkci:
+
+```cpp
+void souboj(...)
+```
+
+### Co systém umí
+
+✅ Tahový souboj
+
+✅ Více nepřátel najednou
+
+✅ Výběr cíle
+
+✅ Speciální schopnosti
+
+✅ Spotřeba many
+
+✅ Léčení
+
+✅ Odměny za vítězství
+
+✅ Drop zlata
+
+✅ Získávání zkušeností
+
+---
+
+## Průběh boje
+
+1. Hráč je na tahu
+2. Vybere schopnost
+3. Udělí poškození
+4. Nepřátelé zaútočí
+5. Cyklus se opakuje do smrti jedné strany
+
+---
+
+# 📈 Level systém
+
+Levelování probíhá ve funkci:
+
+```cpp
+void zkontrolujLevelUp()
+```
+
+Potřebné XP:
+
+```cpp
+level * 5
+```
+
+Po získání levelu hráč dostane:
+
+- ❤️ +2 Max HP
+- ⚔️ +1 Attack
+- 🔮 +1 Max Mana
+
+---
+
+# 💰 Ekonomika
+
+Po vítězství mohou monstra zanechat zlato.
+
+### Běžná monstra
+
+- 50% šance na drop
+
+```cpp
+1 - 5 zlata
+```
+
+### Mini-boss
+
+Garantovaný drop:
+
+```cpp
+10 - 20 zlata
+```
+
+---
+
+# 🏘️ Vesnice
+
+Vesnice slouží jako obchod a místo pro vylepšení postavy.
+
+Funkce:
+
+```cpp
+void navstivVesnici()
+```
+
+---
+
+## Dostupné upgrady
+
+| Upgrade | Cena |
+|----------|---------|
+| Doplnění HP | 3 zlata |
+| +10 Max HP | 5 zlata |
+| +30 Mana | 5 zlata |
+| +8 Attack | 8 zlata |
+
+---
+
+# 👑 Finální Boss - Reckonus
+
+Nejtěžší protivník ve hře.
+
+Souboj probíhá ve funkci:
+
+```cpp
+void soubojReckonus()
+```
+
+---
+
+## Speciální mechaniky
+
+### 🩸 Fázový systém
+
+Boss sílí podle zbývajícího zdraví.
+
+| HP | Fáze |
+|------|------|
+| 100-80% | Fáze 1 |
+| 80-60% | Fáze 2 |
+| 60-40% | Fáze 3 |
+| 40-20% | Fáze 4 |
+| 20-0% | Fáze 5 |
+
+---
+
+### 🛡️ Odolnost
+
+V jednotlivých fázích získává:
+
+- Redukci poškození
+- Zvýšený útok
+- 50% redukci poškození v poslední fázi
+
+---
+
+### ❤️ Regenerace
+
+Čím méně HP má hráč, tím více se Reckonus léčí.
+
+Příklad:
+
+```cpp
+Pokud má hráč méně než 5 % HP:
+Reckonus se vyléčí o 30 HP.
+```
+
+---
+
+# 🧠 Hlavní funkce programu
+
+## `zobrazStav()`
+
+Zobrazuje:
+
+- HP
+- Manu
+- Útok
+- Zlato
+- Level
+- XP
+
+---
+
+## `zobrazSchopnosti()`
+
+Vypisuje schopnosti podle vybrané třídy.
+
+---
+
+## `souboj()`
+
+Stará se o běžné souboje proti monstrům.
+
+---
+
+## `soubojReckonus()`
+
+Speciální souboj s finálním bossem.
+
+---
+
+## `navstivVesnici()`
+
+Obchod a vylepšování postavy.
+
+---
+
+## `zkontrolujLevelUp()`
+
+Kontrola získaných zkušeností a levelování.
+
+---
+
+# 🧱 Použité knihovny
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+```
+
+### Účel
+
+| Knihovna | Použití |
+|-----------|----------|
+| iostream | Vstup a výstup |
+| vector | Dynamická pole |
+| cstdlib | Náhodná čísla |
+| ctime | Seed pro rand() |
+| algorithm | min() a max() |
+
+---
+
+# 🚀 Spuštění
+
+## Kompilace
+
+```bash
+g++ main.cpp -o dungeon
+```
+
+## Spuštění
+
+```bash
+./dungeon
+```
+
+---
+
+# 🎯 Budoucí vylepšení
+
+- 🎒 Inventář
+- 🧪 Lektvary
+- ⚔️ Vybavení
+- 🏹 Nové classy
+- 🧟 Více nepřátel
+- 🌍 Generovaná mapa
+- 💾 Ukládání pozice
+- 🎵 Zvuky
+- 🎨 Barevný terminál
+
+---
+
+# 👨‍💻 Autor
+
+Vytvořil **[Tvoje Jméno]**
+
+Projekt vznikl jako studijní RPG hra v jazyce **C++** zaměřená na:
+
+- Procedurální programování
+- Práci s funkcemi
+- Správu herních statistik
+- Tahový soubojový systém
+- Návrh RPG mechanik
+
+---
+
+⭐ Pokud se ti projekt líbí, dej repozitáři hvězdu!
